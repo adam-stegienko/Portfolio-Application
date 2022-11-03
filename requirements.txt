@@ -1,1 +1,11 @@
-Flask==2.2.2
+click
+flask
+Flask-SQLAlchemy
+itsdangerous
+jinja2
+MarkupSafe
+SQLAlchemy
+werkzeug
+flask_login
+Flask-WTF
+functools

@@ -1,0 +1,116 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h1>{% block title %} {{ title }} {% endblock %}</h1>
+    <br>
+    <br>
+
+    <div class="container">
+        <!-- Page contents -->
+        <div class="jumbotron">
+            <!-- Task input form -->
+            <form class="navbar-form navbar-left" role="search" action="/planner/add" method="POST">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon container-fluid"><b>Project</b></span>
+                        <input type="text" name="project" class="form-control" {% for project in projects %}{% if project.project_id == active %}value="{{ project.project_name }}"{% endif %}{% endfor %} placeholder="Project name">
+                        <span class="input-group-addon container-fluid"><b>Task</b></span>
+                        <input type="text" name="task" class="form-control" placeholder="Add new task" required>
+                        <span class="input-group-addon container-fluid"><b>Status</b></span>
+                        <select id="status" name="status" class="form-control">
+                            <option value=1 selected></option>
+                            <option value=1>Open</option>
+                            <option value=0>Close</option>
+                        </select>
+                    </div>
+                    <div class="input-group mt-4">
+                        <span class="spacer">&nbsp;</span>
+                        <button type="submit" class="btn btn-default">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add new task
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div><!-- jumbotron -->
+
+        {% if tasks %}
+        <div class="tasks">
+            {% if projects %}
+            <span id="taksNav" class="container">
+                <ul class="nav nav-tabs">
+                    {% for tab in projects %}
+                    {% if tab.project_id == active %}
+                    <li role="presentation" class="active">
+                    {% else %}
+                    <li role="presentation">
+                    {% endif %}
+                        <a href="/planner/project/{{ tab.project_name }}"><b>{{ tab.project_name }}</b></a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </span>
+            {% endif %}
+            <div id="taskPanel" class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">&nbsp;
+                        <span class="navbar-right">
+                            <a href="/planner/clear/{{ active }}">
+                                <span class="glyphicon glyphicon-trash" aria-label="Remove All"></span>
+                            </a>
+                            <span class="spacer">&nbsp;</span>
+                        </span>
+                    </h3>
+                </div>
+                <div class="panel-body">
+
+                    <!-- Task table -->
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <td style="width:100%"><b>Description</b></td>
+                            <td><b>Status</b></td>
+                            <td align="center">
+                                <a href="/planner/remove/{{ active }}">
+                                    <span class="glyphicon glyphicon-remove" aria-label="Delete"></span>
+                                </a>
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for task in tasks %}
+                        {% if task.project_id == active %}
+                            {% if task.status %}
+                        <tr class="success">
+                            <td>{{ task.task }}</td>
+                            {% else %}
+                        <tr class="active">
+                            <td><strike>{{ task.task }}</strike></td>
+                            {% endif %}
+                            <td align="center">
+                                <a href="/planner/close/{{ task.task_id }}">
+                                {% if task.status %}
+                                    <span class="glyphicon glyphicon-ok-circle" aria-label="Open"></span>
+                                {% else %}
+                                    <span class="glyphicon glyphicon-ok-sign" aria-label="Close"></span>
+                                {% endif %}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="/planner/delete/{{ task.task_id }}">
+                                    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div><!-- panel body -->
+            </div><!-- panel -->
+        </div><!-- tasks -->
+        {% endif %}
+    </div> <!-- /container -->
+
+
+
+{% endblock %}
