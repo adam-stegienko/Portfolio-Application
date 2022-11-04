@@ -1,0 +1,48 @@
+version: '3.7'
+
+services:
+  digital_planner:
+    image: digital_planner:${APP_VERSION}
+    container_name: digital_planner
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+    - ${APP_PORT_OUT}:${APP_PORT_IN}
+    volumes:
+    - data:/src/app/instance
+  mssql:
+    image: mcr.microsoft.com/mssql/server:${DB_VERSION}
+    container_name: mssql
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+     - "${DB_PORT_IN}:${DB_PORT_OUT}"
+    volumes:
+     - ./mssql/initdb.sql:/init/initdb.sql
+     - ./mssql/entrypoint.sh:/init/entrypoint.sh
+     - ./mssql/initdb.sh:/init/initdb.sh
+     - data:${DATA_VOUME}
+    #  - logs:${LOGS_VOLUME}
+    #  - secrets:${SECRET_VOLUME}
+    networks:
+     - mssql_net
+    depends_on:
+     - digital_planner
+    entrypoint:
+     - /init/entrypoint.sh
+
+volumes:
+  data:
+    name: data
+  # logs:
+  #   name: logs
+  # secrets:
+  #   name: secrets
+
+networks:
+  reverse:
+    driver: bridge
+  mssql_net:
+    driver: bridge

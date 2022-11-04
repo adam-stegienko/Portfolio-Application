@@ -13,15 +13,31 @@ from functools import wraps
 # Initialize the application
 
 app = Flask(__name__)
+
+s = 'mssql' #Your server name 
+d = '${MSSQL_DB}' 
+u = '${MSSQL_USER}' #Your login
+p = '${MSSQL_PASSWORD}' #Your login password
+cstr = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER='+s+';DATABASE='+d+';UID='+u+';PWD='+ p
+
 app.config['SECRET_KEY'] = "I love DevOps"
 app.config['WTF_CSRF_SECRET_KEY'] = "DevOps loves security"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = cstr
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# def connection():
+#     s = 'mssql' #Your server name 
+#     d = '${MSSQL_DB}' 
+#     u = '${MSSQL_USER}' #Your login
+#     p = '${MSSQL_PASSWORD}' #Your login password
+#     cstr = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER='+s+';DATABASE='+d+';UID='+u+';PWD='+ p
+#     conn = pyodbc.connect(cstr)
+#     return conn
+
 # Run the application
 def run():
-    app.run(host="127.0.0.1", debug=True)
+    app.run(host="0.0.0.0")
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key = True)
