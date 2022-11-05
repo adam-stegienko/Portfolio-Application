@@ -11,9 +11,14 @@ services:
     - ${APP_PORT_OUT}:${APP_PORT_IN}
     volumes:
     - data:/src/app/instance
-  mssql:
+    networks:
+     - mssql_net
+    depends_on:
+      mssql_server:
+        condition: service_healthy
+  mssql_server:
     image: mcr.microsoft.com/mssql/server:${DB_VERSION}
-    container_name: mssql
+    container_name: ${MSSQL_SERVER}
     restart: always
     env_file:
       - ./.env
@@ -24,22 +29,21 @@ services:
      - ./mssql/entrypoint.sh:/init/entrypoint.sh
      - ./mssql/initdb.sh:/init/initdb.sh
      - data:${DATA_VOUME}
-    #  - logs:${LOGS_VOLUME}
-    #  - secrets:${SECRET_VOLUME}
     networks:
      - mssql_net
-    depends_on:
-     - digital_planner
     entrypoint:
      - /init/entrypoint.sh
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -U SA -P $MSSQL_SA_PASSWORD -S localhost -i /init/initdb.sql
+      interval: 3s
+      retries: 20
+      start_period: 5s
+      timeout: 5s
+
 
 volumes:
   data:
     name: data
-  # logs:
-  #   name: logs
-  # secrets:
-  #   name: secrets
 
 networks:
   reverse:
