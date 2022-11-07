@@ -1,16 +1,29 @@
 version: '3.7'
 
 services:
+  reverse_nginx:
+    container_name: reverse_nginx
+    hostname: reverse_nginx
+    image: nginx:1.23-alpine
+    networks:
+      - reverse
+    ports:
+      - "80:80"
+    volumes:
+      - ./reverse_proxy/conf/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
+
   digital_planner:
     image: digital_planner:${APP_VERSION}
     container_name: digital_planner
     restart: always
     env_file:
       - ./.env
-    ports:
-    - ${APP_PORT_OUT}:${APP_PORT_IN}
+    # ports:
+    # - ${APP_PORT_OUT}:${APP_PORT_IN}
     networks:
     - db_network
+    - reverse
     depends_on:
       mssql_server:
         condition: service_healthy
@@ -21,8 +34,8 @@ services:
     restart: always
     env_file:
       - ./.env
-    ports:
-     - "${DB_PORT_IN}:${DB_PORT_OUT}"
+    # ports:
+    #  - "${DB_PORT_IN}:${DB_PORT_OUT}"
     volumes:
      - ./mssql/initdb.sql:/init/initdb.sql
      - ./mssql/entrypoint.sh:/init/entrypoint.sh
@@ -46,4 +59,6 @@ volumes:
 
 networks:
   db_network:
+    driver: bridge
+  reverse:
     driver: bridge
