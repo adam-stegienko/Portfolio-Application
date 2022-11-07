@@ -8,3 +8,5 @@ The project itself is a part of my DevOps portfolio, which I kindly invite you t
 #### Usage:
 
 Simply type `./init.sh` in your command line to start the project. Then you can access it via http://localhost. Enjoy the digitial planner!
+
+Note: Make sure to add environmental variables on your choice and save them inside a `.env` file in the project's root (`/`) folder (`.env.example` file provided as a blueprint).
