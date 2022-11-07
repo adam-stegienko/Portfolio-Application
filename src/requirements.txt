@@ -1,9 +1,0 @@
-Flask==2.2.2
-Flask_Login==0.6.2
-flask_sqlalchemy==3.0.2
-Flask_WTF==1.0.1
-Werkzeug==2.2.2
-WTForms==3.0.1
-Jinja2==3.0.3
-pyodbc==4.0.28
-python-dotenv==0.21.0

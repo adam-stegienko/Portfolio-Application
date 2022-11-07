@@ -50,7 +50,7 @@ class Users(db.Model, UserMixin):
 # Add 'Projects' table
 class Projects(db.Model):
     project_id = db.Column(db.Integer, primary_key=True)
-    project_name = db.Column(db.String(20))
+    project_name = db.Column(db.String(255))
     active = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 

@@ -9,13 +9,12 @@ services:
       - ./.env
     ports:
     - ${APP_PORT_OUT}:${APP_PORT_IN}
-    volumes:
-    - data:/src/app/instance
     networks:
-     - mssql_net
+    - db_network
     depends_on:
       mssql_server:
         condition: service_healthy
+
   mssql_server:
     image: mcr.microsoft.com/mssql/server:${DB_VERSION}
     container_name: ${MSSQL_SERVER}
@@ -30,7 +29,7 @@ services:
      - ./mssql/initdb.sh:/init/initdb.sh
      - data:${DATA_VOUME}
     networks:
-     - mssql_net
+     - db_network
     entrypoint:
      - /init/entrypoint.sh
     healthcheck:
@@ -46,7 +45,5 @@ volumes:
     name: data
 
 networks:
-  reverse:
-    driver: bridge
-  mssql_net:
+  db_network:
     driver: bridge

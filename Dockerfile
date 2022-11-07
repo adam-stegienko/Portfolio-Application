@@ -15,7 +15,10 @@ Description = FreeTDS Driver\n\
 Driver = /usr/lib/x86_64-linux-gnu/odbc/libtdsodbc.so\n\
 Setup = /usr/lib/x86_64-linux-gnu/odbc/libtdsS.so" >> /etc/odbcinst.ini
 
-COPY src/ .
+COPY api/ .
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python","-i","app.py"]
+ENV FLASK_DEBUG production
+EXPOSE 5000
+
+CMD ["gunicorn", "-b", ":5000", "api:app"]
