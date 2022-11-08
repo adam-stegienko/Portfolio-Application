@@ -27,8 +27,8 @@ services:
         condition: service_healthy
 
   mssql_server:
-    image: mcr.microsoft.com/mssql/server:${DB_VERSION}
-    container_name: ${MSSQL_SERVER}
+    image: mcr.microsoft.com/mssql/server:${INPUT_ENVKEY_DB_VERSION}
+    container_name: ${INPUT_ENVKEY_MSSQL_SERVER}
     restart: always
     env_file:
       - ./.env
@@ -36,7 +36,7 @@ services:
      - ./mssql/initdb.sql:/init/initdb.sql
      - ./mssql/entrypoint.sh:/init/entrypoint.sh
      - ./mssql/initdb.sh:/init/initdb.sh
-     - data:${DATA_VOLUME}
+     - data:${INPUT_ENVKEY_DATA_VOLUME}
     networks:
      - db_network
     entrypoint:
