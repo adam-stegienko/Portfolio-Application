@@ -33,7 +33,7 @@ jobs:
       run: |
         # Build the image
         echo "\n${bold}---------------------------------------- BUILDING APP IMAGE --------------------------------------${normal}\n"
-        docker build -t digital_planner:${APP_VERSION} .
+        docker build -t digital_planner:latest .
     - name: Set-up recreation
       run: |
         # Reinstate docker compose topology
