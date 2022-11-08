@@ -36,7 +36,7 @@ services:
      - ./mssql/initdb.sql:/init/initdb.sql
      - ./mssql/entrypoint.sh:/init/entrypoint.sh
      - ./mssql/initdb.sh:/init/initdb.sh
-     - data:${DATA_VOUME}
+     - data:${DATA_VOLUME}
     networks:
      - db_network
     entrypoint:
