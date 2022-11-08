@@ -1,0 +1,188 @@
+pipeline {
+    agent any
+    environment {
+    }
+    stages {
+        stage('Properties set-up') {
+            steps {
+                script {
+                    properties([
+                        disableConcurrentBuilds(), 
+                    ])
+                }
+            }
+        }
+        stage('Cleaning') {
+            steps {
+                script {
+                    deleteDir()
+                    checkout scm
+                }
+            }
+        }
+        stage('Version Tag Latest') {     
+            steps{
+                script {
+                    APP_VERSION = "latest"
+                }
+            }
+        }
+        stage('Main branch semantic versioning') {     
+            when { branch "main" }
+            steps{
+                script {
+                    sh"""
+                        git checkout main
+                        git remote set-url origin git@github.com:adam-stegienko/Develeap-Portfolio.git
+                        git pull --rebase
+                        git fetch --tags
+                    """
+
+                    LATEST_TAG = sh(
+                        script: "git tag | sort -V | tail -1 || true",
+                        returnStdout: true,
+                    ).toString()
+
+                    UPDATE_CHECKER = sh(
+                        script: "git log --format=\"medium\" -1",
+                        returnStdout: true,
+                    ).toString()
+
+                    MAJOR_UPDATE = sh(
+                        script: "echo $UPDATE_CHECKER | grep '#major' || true",
+                        returnStdout: true,
+                    ).toString()
+
+                    MINOR_UPDATE = sh(
+                        script: "echo $UPDATE_CHECKER | grep '#minor' || true",
+                        returnStdout: true,
+                    ).toString()
+
+                    if (MAJOR_UPDATE) {
+                        INCREMENTATION = (LATEST_TAG.tokenize(".")[0].toInteger() + 1).toString()
+                        NEW_TAG = INCREMENTATION + "." + LATEST_TAG.tokenize(".")[1].toString() + "." + LATEST_TAG.tokenize(".")[2].toString()
+                    } else if (MINOR_UPDATE) {
+                        INCREMENTATION = (LATEST_TAG.tokenize(".")[1].toInteger() + 1).toString()
+                        NEW_TAG = LATEST_TAG.tokenize(".")[0].toString() + "." + INCREMENTATION + "." + LATEST_TAG.tokenize(".")[2].toString()
+                    } else {
+                        INCREMENTATION = (LATEST_TAG.tokenize(".")[2].toInteger() + 1).toString()
+                        NEW_TAG = LATEST_TAG.tokenize(".")[0].toString() + "." + LATEST_TAG.tokenize(".")[1].toString() + "." + INCREMENTATION
+                    }
+                    echo "The new tag for release on master branch is '$NEW_TAG'"
+                    APP_VERSION = NEW_TAG
+                    echo "The tag used for pipeline operations will be '$APP_VERSION'"
+                }
+            }    
+        }
+        stage('Creating .env file with values') {
+            steps {
+                script {
+                    sh"""
+                        cat << EOF > .env
+                        APP_VERSION: $APP_VERSION
+                        DB_VERSION: 2022-latest
+                        DB_PORT_IN: 1433
+                        DB_PORT_OUT: 1433
+                        ACCEPT_EULA: Y
+                        MSSQL_SA_USER: ${{ secrets.MSSQL_SA_USER }}
+                        MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
+                        MSSQL_PID: Developer
+                        DATA_VOLUME: /var/opt/mssql
+                        MSSQL_DB: ${{ secrets.MSSQL_DB }}
+                        MSSQL_USER: ${{ secrets.MSSQL_USER }}
+                        MSSQL_PASSWORD: ${{ secrets.MSSQL_PASSWORD }}
+                        MSSQL_SERVER: mssql_server
+                        DRIVER: FreeTDS
+                        PROTOCOL: mssql+pyodbc
+                        OPTIONS: 'TDS_Version=8.0'  
+                        EOF
+                    """
+                }
+            }
+        }
+        stage('Values import') {
+            steps {
+                script {
+                    sh"""
+                        # Import .env values
+                        echo -e "/\n--------------------------------------- IMPORTING ENV FILE ---------------------------------------/\n"
+                        if [ -f .env ]
+                            then
+                                export $(grep -v '^#' .env | xargs)
+                                echo "Values from .env file sourced successfully."
+                            else
+                                echo "No .env file provided."
+                                exit 1
+                        fi
+                    """
+                }
+            }
+        }
+        stage('Image build') {
+            steps {
+                script {
+                    sh"""
+                        # Build the image
+                        echo -e "/\n---------------------------------------- BUILDING APP IMAGE --------------------------------------/\n"
+                        docker build -t digital_planner:$APP_VERSION .
+                    """
+                }
+            }
+        }   
+        stage('Image build') {
+            steps {
+                script {
+                    sh"""
+                        echo -e "/\n------------------------------------------ CREATING SET-UP ---------------------------------------/\n"
+                        docker compose up --detach --remove-orphans
+                        sleep 3
+                    """
+                }
+            }
+        }
+        stage('Logs') {
+            steps {
+                script {
+                    sh"""
+                        # Check start-up logs
+                        echo -e "/\n------------------------------------------ DATABASE LOGS ------------------------------------------/\n"
+                        docker logs mssql_server
+                        sleep 2
+                        echo -e "/\n$---------------------------------------- APPLICATION LOGS ----------------------------------------/\n"
+                        docker logs digital_planner
+                        sleep 2
+                        echo -e "/\n$--------------------------------------- REVERSE PROXY LOGS ---------------------------------------/\n"
+                        docker logs reverse_nginx
+                        sleep 2
+                    """
+                }
+            }
+        }    
+        stage('Unit tests') {
+            steps {
+                script {
+                    sh"""
+                        # Perform unit tests
+                        echo -e "/\n---------------------------------------- RUNNING UNIT TESTS ---------------------------------------/\n"
+                        command ./unit_tests.sh
+                    """
+                }
+            }
+        }
+        stage('Publish image to ACR repository') {
+            steps {
+                script {
+                    sh"""
+                        # alternatively via stdin
+                        docker login adam2portfolio.azurecr.io --username $AZURE_LOGIN --password $AZURE_PASSWORD
+                        docker tag digital_planner:$APP_VERSION adam2portfolio.azurecr.io/digital_planner:$APP_VERSION
+                        docker push adam2portfolio.azurecr.io/digital_planner:$APP_VERSION
+                        docker tag digital_planner:$APP_VERSION adam2portfolio.azurecr.io/digital_planner:latest
+                        docker push adam2portfolio.azurecr.io/digital_planner:latest
+                        echo "ToxicTypo image version latest and version $VERSION_TAG has been successfully pushed to Azure Container Registry."
+                    """
+                }
+            }
+        }
+    }
+}

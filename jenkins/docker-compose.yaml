@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+    jenkins_master:
+        container_name: jenkins_master
+        build:
+            context: .
+        ports:
+            - 8080:8080
+        volumes:
+            - jenkins_home:/var/jenkins_home
+            - /var/run/docker.sock:/var/run/docker.sock
+        restart: on-failure
+
+volumes:
+    jenkins_home:
