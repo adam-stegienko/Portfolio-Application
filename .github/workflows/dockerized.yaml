@@ -27,7 +27,7 @@ jobs:
         MSSQL_PID: Developer
         DATA_VOLUME: /var/opt/mssql
         MSSQL_DB: ${{ secrets.MSSQL_DB }}
-        MSSQL_USER: ${{ secrets.MSSSQL_USER }}
+        MSSQL_USER: ${{ secrets.MSSQL_USER }}
         MSSQL_PASSWORD: ${{ secrets.MSSQL_PASSWORD }}
         MSSQL_SERVER: mssql_server
         DRIVER: FreeTDS
@@ -43,11 +43,11 @@ jobs:
 
     - name: Set-up recreation
       run: |
-        # Reinstate docker compose topology
-        echo "\n${bold}---------------------------------------- RECREATING SET-UP ---------------------------------------${normal}\n"
-        docker compose down
-        docker compose up --detach --remove-orphans
-        sleep 3
+        docker compose up --detach
+        sleep 2
+        
+    - name: Logs
+      run: |
         # Check start-up logs
         echo "\n${bold}----------------------------------------- DATABASE LOGS ------------------------------------------${normal}\n"
         docker logs mssql_server
