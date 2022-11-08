@@ -14,7 +14,7 @@ services:
     restart: always
 
   digital_planner:
-    image: digital_planner:${APP_VERSION}
+    image: digital_planner:latest
     container_name: digital_planner
     restart: always
     env_file:
