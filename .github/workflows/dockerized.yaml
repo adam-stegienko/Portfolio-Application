@@ -11,7 +11,7 @@ jobs:
   make-env:
 
     runs-on: ubuntu-22.04
-      
+
     steps:
     - name: Make envfile
       uses: SpicyPizza/create-envfile@v1.3
@@ -33,20 +33,20 @@ jobs:
         envkey_DRIVER: FreeTDS
         envkey_PROTOCOL: mssql+pyodbc
         envkey_OPTIONS: 'TDS_Version=8.0'
-        
-      
-    docker-build:
 
-      runs-on: ubuntu-22.04
 
-      steps:  
+  docker-build:
+
+    runs-on: ubuntu-22.04
+
+    steps:  
     - uses: actions/checkout@v3
     - name: Docker image build
       run: |
         # Build the image
         echo "\n${bold}---------------------------------------- BUILDING APP IMAGE --------------------------------------${normal}\n"
         docker build -t digital_planner:latest .
-        
+
     - name: Set-up recreation
       run: |
         # Reinstate docker compose topology
@@ -64,7 +64,7 @@ jobs:
         echo "\n${bold}--------------------------------------- REVERSE PROXY LOGS ---------------------------------------${normal}\n"
         docker logs reverse_nginx
         sleep 2
-        
+
     - name: Unit testing
       run: |
         # Perform unit tests
