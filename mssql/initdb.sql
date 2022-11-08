@@ -1,6 +1,6 @@
 USE master;
 GO
--- IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '$(MSSQL_DB)')
+
 CREATE DATABASE [$(MSSQL_DB)];
 GO
 
@@ -14,4 +14,7 @@ CREATE USER [$(MSSQL_USER)] FOR LOGIN $(MSSQL_USER);
 GO
 
 ALTER SERVER ROLE [dbcreator] ADD MEMBER $(MSSQL_USER);
+GO
+
+EXEC sp_addrolemember 'db_owner', '$(MSSQL_USER)';
 GO

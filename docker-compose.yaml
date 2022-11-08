@@ -19,8 +19,6 @@ services:
     restart: always
     env_file:
       - ./.env
-    # ports:
-    # - ${APP_PORT_OUT}:${APP_PORT_IN}
     networks:
     - db_network
     - reverse
@@ -34,8 +32,6 @@ services:
     restart: always
     env_file:
       - ./.env
-    # ports:
-    #  - "${DB_PORT_IN}:${DB_PORT_OUT}"
     volumes:
      - ./mssql/initdb.sql:/init/initdb.sql
      - ./mssql/entrypoint.sh:/init/entrypoint.sh
@@ -47,10 +43,10 @@ services:
      - /init/entrypoint.sh
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -U SA -P $MSSQL_SA_PASSWORD -S localhost -i /init/initdb.sql
-      interval: 3s
-      retries: 20
-      start_period: 5s
-      timeout: 5s
+      interval: 2s
+      retries: 10
+      start_period: 3s
+      timeout: 3s
 
 
 volumes:
