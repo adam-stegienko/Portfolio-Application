@@ -16,7 +16,7 @@ import os
 app = Flask(__name__)
 
 # Load the database environment variables
-load_dotenv('../.env')
+# load_dotenv('../.env')
 PROTOCOL = os.getenv('PROTOCOL')
 MSSQL_USER = os.getenv('MSSQL_USER')
 MSSQL_PASSWORD = os.getenv('MSSQL_PASSWORD')
