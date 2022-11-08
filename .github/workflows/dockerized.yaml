@@ -11,21 +11,6 @@ jobs:
   build:
 
     runs-on: ubuntu-22.04
-    env:
-      DB_VERSION: 2022-latest
-      DB_PORT_OUT: 1433
-      ACCEPT_EULA: Y
-      MSSQL_SA_USER: ${{ secrets.MSSQL_SA_USER }}
-      MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
-      MSSQL_PID: Developer
-      DATA_VOUME: /var/opt/mssql
-      MSSQL_DB: ${{ secrets.MSSQL_DB }}
-      MSSQL_USER: ${{ secrets.MSSSQL_USER }}
-      MSSQL_PASSWORD: ${{ secrets.MSSQL_PASSWORD }}
-      MSSQL_SERVER: mssql_server
-      DRIVER: FreeTDS
-      PROTOCOL: mssql+pyodbc
-      OPTIONS: 'TDS_Version=8.0'
       
     steps:
     - name: Make envfile
