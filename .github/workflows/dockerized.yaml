@@ -28,12 +28,34 @@ jobs:
       OPTIONS: 'TDS_Version=8.0'
       
     steps:
+    - name: Make envfile
+      uses: SpicyPizza/create-envfile@v1.3
+      with:
+        envkey_DEBUG: false
+        envkey_SOME_API_KEY: "123456abcdef"
+        envkey_DB_VERSION: 2022-latest
+        envkey_DB_PORT_IN: 1433
+        envkey_DB_PORT_OUT: 1433
+        envkey_ACCEPT_EULA: Y
+        envkey_MSSQL_SA_USER: ${{ secrets.MSSQL_SA_USER }}
+        envkey_MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
+        envkey_MSSQL_PID: Developer
+        envkey_DATA_VOLUME: /var/opt/mssql
+        envkey_MSSQL_DB: ${{ secrets.MSSQL_DB }}
+        envkey_MSSQL_USER: ${{ secrets.MSSSQL_USER }}
+        envkey_MSSQL_PASSWORD: ${{ secrets.MSSQL_PASSWORD }}
+        envkey_MSSQL_SERVER: mssql_server
+        envkey_DRIVER: FreeTDS
+        envkey_PROTOCOL: mssql+pyodbc
+        envkey_OPTIONS: 'TDS_Version=8.0'
+        
     - uses: actions/checkout@v3
     - name: Docker image build
       run: |
         # Build the image
         echo "\n${bold}---------------------------------------- BUILDING APP IMAGE --------------------------------------${normal}\n"
         docker build -t digital_planner:latest .
+        
     - name: Set-up recreation
       run: |
         # Reinstate docker compose topology
@@ -41,7 +63,6 @@ jobs:
         docker compose down
         docker compose up --detach --remove-orphans
         sleep 3
-
         # Check start-up logs
         echo "\n${bold}----------------------------------------- DATABASE LOGS ------------------------------------------${normal}\n"
         docker logs mssql_server
@@ -52,6 +73,7 @@ jobs:
         echo "\n${bold}--------------------------------------- REVERSE PROXY LOGS ---------------------------------------${normal}\n"
         docker logs reverse_nginx
         sleep 2
+        
     - name: Unit testing
       run: |
         # Perform unit tests
