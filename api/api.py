@@ -9,14 +9,12 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, EmailField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from functools import wraps
-from dotenv import load_dotenv
 import os
 
 # Initialize the application
 app = Flask(__name__)
 
 # Load the database environment variables
-# load_dotenv('../.env')
 PROTOCOL = os.getenv('PROTOCOL')
 MSSQL_USER = os.getenv('MSSQL_USER')
 MSSQL_PASSWORD = os.getenv('MSSQL_PASSWORD')
