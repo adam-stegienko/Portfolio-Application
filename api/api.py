@@ -17,14 +17,14 @@ app = Flask(__name__)
 
 # Load the database environment variables
 load_dotenv('../.env')
-PROTOCOL = os.getenv('PROTOCOL')
-MSSQL_USER = os.getenv('MSSQL_USER')
-MSSQL_PASSWORD = os.getenv('MSSQL_PASSWORD')
-MSSQL_SERVER = os.getenv('MSSQL_SERVER')
-MSSQL_DB = os.getenv('MSSQL_DB')
-DRIVER = os.getenv('DRIVER')
-DB_PORT_OUT = os.getenv('DB_PORT_OUT')
-OPTIONS = os.getenv('OPTIONS')
+PROTOCOL = os.getenv('INPUT_ENVKEY_PROTOCOL')
+MSSQL_USER = os.getenv('INPUT_ENVKEY_MSSQL_USER')
+MSSQL_PASSWORD = os.getenv('INPUT_ENVKEY_MSSQL_PASSWORD')
+MSSQL_SERVER = os.getenv('INPUT_ENVKEY_MSSQL_SERVER')
+MSSQL_DB = os.getenv('INPUT_ENVKEY_MSSQL_DB')
+DRIVER = os.getenv('INPUT_ENVKEY_DRIVER')
+DB_PORT_OUT = os.getenv('INPUT_ENVKEY_DB_PORT_OUT')
+OPTIONS = os.getenv('INPUT_ENVKEY_OPTIONS')
 
 # Configure MS SQL Server database connection
 app.config['SECRET_KEY'] = "I love DevOps"
