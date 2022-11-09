@@ -73,18 +73,18 @@ jobs:
         OPTIONS: 'TDS_Version=8.0'  
         EOF
     
-    - name: Values import
-      run: |
-        # Import .env values
-        echo -e "\n--------------------------------------- IMPORTING ENV FILE ---------------------------------------\n"
-        if [ -f .env ]
-            then
-                export $(grep -v '^#' .env | xargs)
-                echo "Values from .env file sourced successfully."
-            else
-                echo "No .env file provided."
-                exit 1
-        fi
+    # - name: Values import
+    #   run: |
+    #     # Import .env values
+    #     echo -e "\n--------------------------------------- IMPORTING ENV FILE ---------------------------------------\n"
+    #     if [ -f .env ]
+    #         then
+    #             export $(grep -v '^#' .env | xargs)
+    #             echo "Values from .env file sourced successfully."
+    #         else
+    #             echo "No .env file provided."
+    #             exit 1
+    #     fi
 
     - name: Docker image build
       run: |
