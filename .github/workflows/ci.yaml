@@ -20,12 +20,12 @@ jobs:
     - name: Latest app version
       run: APP_VERSION="latest"
 
-    - name: Fetch tags
-      run: |
-        git checkout main
-        git remote set-url origin git@github.com:adam-stegienko/Develeap-Portfolio.git
-        git pull --rebase
-        git fetch --tags
+    # - name: Fetch tags
+    #   run: |
+    #     git checkout main
+    #     git remote set-url origin git@github.com:adam-stegienko/Develeap-Portfolio.git
+    #     git pull --rebase
+    #     git fetch --tags
 
     - name: Semantic versioning (x.y.z)
       run: |
