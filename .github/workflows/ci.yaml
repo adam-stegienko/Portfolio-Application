@@ -137,12 +137,14 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     
-    - name: 'Push image'
+    - name: Push image
       uses: azure/docker-login@v1
       with:
         login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+    - name: Tag and push
       run: |
         docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
         docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
