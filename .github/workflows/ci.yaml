@@ -30,7 +30,6 @@ jobs:
     - name: Semantic versioning (x.y.z)
       run: |
         echo "LATEST_TAG=$(git tag | sort -V | tail -1 || true)" >> $GITHUB_ENV
-        echo $LATEST_TAG
 
         echo "UPDATE_CHECKER="$(git log --format="short" -1 | tail -2 | tr -d "\n" | tr -d " " | tr -d "\r")" >> $GITHUB_ENV
         echo "MAJOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#major' || true)" >> $GITHUB_ENV
@@ -39,9 +38,6 @@ jobs:
         echo "NEW_MAJOR=$(echo "${{ env.LATEST_TAG }}" | cut -d "." -f 1)" >> $GITHUB_ENV
         echo "NEW_MINOR=$(echo "${{ env.LATEST_TAG }}" | cut -d "." -f 2)" >> $GITHUB_ENV
         echo "NEW_PATCH=$(echo "${{ env.LATEST_TAG }}" | cut -d "." -f 3)" >> $GITHUB_ENV
-        echo $NEW_MAJOR
-        echo $NEW_MINOR
-        echo $NEW_PATCH
 
         if [[ $MAJOR_UPDATE ]]; then
           echo "NEW_MAJOR=$(expr ${{ $NEW_MAJOR }} + 1)" >> $GITHUB_ENV
