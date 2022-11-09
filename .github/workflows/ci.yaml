@@ -8,7 +8,7 @@ on:
 concurrency: production
 jobs:
 
-  Build and Publish:
+  build-and-publish:
 
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/main'
