@@ -31,7 +31,7 @@ jobs:
       run: |
         LATEST_TAG="$(git tag | sort -V | tail -1 || true)"
 
-        UPDATE_CHECKER="$(git log --format=\"medium\" -1)"
+        UPDATE_CHECKER="$(git log --format="medium" -1)"
         MAJOR_UPDATE="$(echo $UPDATE_CHECKER | grep '#major' || true)"
         MINOR_UPDATE="$(echo $UPDATE_CHECKER | grep '#minor' || true)"
         
