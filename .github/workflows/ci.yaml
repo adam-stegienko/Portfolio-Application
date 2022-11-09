@@ -47,21 +47,24 @@ jobs:
     - name: Checking what to update
       run: |
         if [[ $MAJOR_UPDATE ]]; then
-          echo "NEW_MAJOR=$(expr $(echo $LATEST_TAG | cut -d "." -f 1) + 1)" >> $GITHUB_ENV
-          echo "NEW_MINOR=$(expr 0 * 1)" >> GITHUB_ENV
-          echo "NEW_PATCH=$(expr 0 * 1)" >> GITHUB_ENV
+          echo "NEW_MAJOR=$(expr $MAJOR + 1)" >> $GITHUB_ENV
         elif [[ $MINOR_UPDATE ]]; then
-          echo "NEW_MAJOR=$MAJOR" >> GITHUB_ENV
           echo "NEW_MINOR=$(expr $MINOR + 1)" >> $GITHUB_ENV
-          echo "NEW_PATCH=$(expr 0 * 1)" >> GITHUB_ENV
         else
-          echo "NEW_MAJOR=$MAJOR" >> GITHUB_ENV
-          echo "NEW_MINOR=$MINOR" >> GITHUB_ENV
           echo "NEW_PATCH=$(expr $PATCH + 1)" >> $GITHUB_ENV
         fi
 
     - name: New Tag
-      run: echo "NEW_TAG=$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" >> $GITHUB_ENV
+      run: |
+        echo "NEW_TAG=$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" >> $GITHUB_ENV
+
+        if [[ $MAJOR_UPDATE ]]; then
+          echo "NEW_TAG=$NEW_MAJOR.0.0" >> $GITHUB_ENV
+        elif [[ $MINOR_UPDATE ]]; then
+          echo "NEW_TAG=$MAJOR.$NEW_MINOR.0" >> $GITHUB_ENV
+        else
+          echo "NEW_TAG=$MAJOR.$MINOR.$NEW_PATCH" >> $GITHUB_ENV
+        fi
 
     - name: Semantic versioning (x.y.z)
       run: echo "APP_VERSION=$NEW_TAG" >> $GITHUB_ENV
