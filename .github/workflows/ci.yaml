@@ -9,7 +9,6 @@ concurrency: production
 jobs:
 
   build-and-publish:
-
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/main'
     steps:  
@@ -49,7 +48,7 @@ jobs:
       run: |
         if [[ $MAJOR_UPDATE ]]; then
           echo "NEW_MAJOR=$(expr $NEW_MAJOR + 1)" >> $GITHUB_ENV
-          echo "NEW_MINOR=0" >> GITHUB_ENV
+          echo "NEW_MINOR=0" >> GITHUB_ENVq
           echo "NEW_PATCH=0" >> GITHUB_ENV
         elif [[ $MINOR_UPDATE ]]; then
           echo "NEW_MINOR=$(expr $NEW_MINOR + 1)" >> $GITHUB_ENV
