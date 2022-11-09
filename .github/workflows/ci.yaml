@@ -59,20 +59,7 @@ jobs:
       run: echo "NEW_TAG=$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" >> $GITHUB_ENV
 
     - name: Semantic versioning (x.y.z)
-      run: |
-        #!/bin/bash
-        set -xe
-
-        echo $APP_VERSION
-        echo $LATEST_TAG
-        echo "APP_VERSION=$NEW_TAG" >> $GITHUB_ENV
-        echo $UPDATE_CHECKER
-        echo $MAJOR_UPDATE
-        echo $MINOR_UPDATE
-        echo $NEW_MAJOR
-        echo $NEW_MINOR
-        echo $NEW_PATCH
-        echo $NEW_TAG
+      run: echo "APP_VERSION=$NEW_TAG" >> $GITHUB_ENV
 
     - name: Env file creation
       run: |
@@ -95,18 +82,18 @@ jobs:
         OPTIONS: 'TDS_Version=8.0'  
         EOF
     
-    # - name: Values import
-    #   run: |
-    #     # Import .env values
-    #     echo -e "\n--------------------------------------- IMPORTING ENV FILE ---------------------------------------\n"
-    #     if [ -f .env ]
-    #         then
-    #             export $(grep -v '^#' .env | xargs)
-    #             echo "Values from .env file sourced successfully."
-    #         else
-    #             echo "No .env file provided."
-    #             exit 1
-    #     fi
+    - name: Values import
+      run: |
+        # Import .env values
+        echo -e "\n--------------------------------------- IMPORTING ENV FILE ---------------------------------------\n"
+        if [ -f .env ]
+            then
+                export $(grep -v '^#' .env | xargs)
+                echo "Values from .env file sourced successfully."
+            else
+                echo "No .env file provided."
+                exit 1
+        fi
 
     # - name: Docker image build
     #   run: |
@@ -138,11 +125,11 @@ jobs:
     #     echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
     #     command ./unit_tests.sh
         
-    # - name: Tagging and pushing to GitHub Repo
-    #   run: |
-    #     git clean -f -x
-    #     git tag -a $NEW_TAG -m "New ${{ env.NEW_TAG }} tag added to latest commit on branch main"
-    #     git push origin main --tag
+    - name: Tagging and pushing to GitHub Repo
+      run: |
+        git clean -f -x
+        git tag -a $NEW_TAG -m "New ${{ env.NEW_TAG }} tag added to latest commit on branch main"
+        git push origin main --tag
 
     - name: Env file deletion
       run: |
