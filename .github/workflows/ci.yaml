@@ -85,35 +85,35 @@ jobs:
         OPTIONS: 'TDS_Version=8.0'  
         EOF
 
-    # - name: Docker image build
-    #   run: |
-    #     # Build the image
-    #     echo -e "\n---------------------------------------- BUILDING APP IMAGE --------------------------------------\n"
-    #     docker build -t digital_planner:${{ env.APP_VERSION }} .
+    - name: Docker image build
+      run: |
+        # Build the image
+        echo -e "\n---------------------------------------- BUILDING APP IMAGE --------------------------------------\n"
+        docker build -t digital_planner:${{ env.APP_VERSION }} .
 
-    # - name: Set-up recreation
-    #   run: |
-    #     docker compose up --detach
-    #     sleep 2
+    - name: Set-up recreation
+      run: |
+        docker compose up --detach
+        sleep 2
         
-    # - name: Logs
-    #   run: |
-    #     # Check start-up logs
-    #     echo -e "\n----------------------------------------- DATABASE LOGS ------------------------------------------\n"
-    #     docker logs mssql_server
-    #     sleep 2
-    #     echo -e "\n---------------------------------------- APPLICATION LOGS ----------------------------------------\n"
-    #     docker logs digital_planner
-    #     sleep 2
-    #     echo -e "\n--------------------------------------- REVERSE PROXY LOGS ---------------------------------------\n"
-    #     docker logs reverse_nginx
-    #     sleep 2
+    - name: Logs
+      run: |
+        # Check start-up logs
+        echo -e "\n----------------------------------------- DATABASE LOGS ------------------------------------------\n"
+        docker logs mssql_server
+        sleep 2
+        echo -e "\n---------------------------------------- APPLICATION LOGS ----------------------------------------\n"
+        docker logs digital_planner
+        sleep 2
+        echo -e "\n--------------------------------------- REVERSE PROXY LOGS ---------------------------------------\n"
+        docker logs reverse_nginx
+        sleep 2
 
-    # - name: Unit testing
-    #   run: |
-    #     # Perform unit tests
-    #     echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
-    #     command ./unit_tests.sh
+    - name: Unit testing
+      run: |
+        # Perform unit tests
+        echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
+        command ./unit_tests.sh
         
     - name: Tagging and pushing to GitHub Repo
       run: |
