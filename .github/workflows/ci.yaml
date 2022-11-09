@@ -48,12 +48,15 @@ jobs:
       run: |
         if [[ $MAJOR_UPDATE ]]; then
           echo "NEW_MAJOR=$(expr $MAJOR + 1)" >> $GITHUB_ENV
-          echo "NEW_MINOR=0" >> GITHUB_ENV
-          echo "NEW_PATCH=0" >> GITHUB_ENV
+          echo "NEW_PATCH=$(expr $MINOR - $MINOR)" >> GITHUB_ENV
+          echo "NEW_PATCH=$(expr $PATCH - $PATCH)" >> GITHUB_ENV
         elif [[ $MINOR_UPDATE ]]; then
+          echo "NEW_MAJOR=$MAJOR" >> GITHUB_ENV
           echo "NEW_MINOR=$(expr $MINOR + 1)" >> $GITHUB_ENV
-          echo "NEW_PATCH=0" >> GITHUB_ENV
+          echo "NEW_PATCH=$(expr $PATCH - $PATCH)" >> GITHUB_ENV
         else
+          echo "NEW_MAJOR=$MAJOR" >> GITHUB_ENV
+          echo "NEW_MINOR=$MINOR" >> GITHUB_ENV
           echo "NEW_PATCH=$(expr $PATCH + 1)" >> $GITHUB_ENV
         fi
 
