@@ -29,9 +29,12 @@ jobs:
 
     - name: Semantic versioning (x.y.z)
       run: |
+        #!/bin/bash
+        set -xe
+
         echo "LATEST_TAG=$(git tag | sort -V | tail -1 || true)" >> $GITHUB_ENV
 
-        echo "UPDATE_CHECKER="$(git log --format="short" -1 | tail -2 | tr -d "\n" | tr -d " " | tr -d "\r")" >> $GITHUB_ENV
+        echo "UPDATE_CHECKER=$(git log --format="short" -1 | tail -2 | tr -d "\n" | tr -d " " | tr -d "\r")" >> $GITHUB_ENV
         echo "MAJOR_UPDATE=$(echo ${{ env.UPDATE_CHECKER }} | grep '#major' || true)" >> $GITHUB_ENV
         echo "MINOR_UPDATE=$(echo ${{ env.UPDATE_CHECKER }} | grep '#minor' || true)" >> $GITHUB_ENV
         
