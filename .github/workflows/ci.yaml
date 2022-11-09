@@ -31,6 +31,7 @@ jobs:
         set -xe
 
         echo "LATEST_TAG=$(git tag | sort -V | tail -1)" >> $GITHUB_ENV
+        echo $GITHUB_ENV
 
         echo "UPDATE_CHECKER=$(git log --format="short" -1 | tail -2 | tr -d "\n" | tr -d " " | tr -d "\r")" >> $GITHUB_ENV
         echo "MAJOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#major' || true)" >> $GITHUB_ENV
@@ -50,6 +51,7 @@ jobs:
 
         echo "NEW_TAG=$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" >> $GITHUB_ENV
         echo "APP_VERSION=$NEW_TAG" >> $GITHUB_ENV
+        echo $GITHUB_ENV
 
     - name: Env file creation
       run: |
@@ -115,11 +117,11 @@ jobs:
     #     echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
     #     command ./unit_tests.sh
         
-    - name: Tagging and pushing to GitHub Repo
-      run: |
-        git clean -f -x
-        git tag -a $NEW_TAG -m "New ${{ env.NEW_TAG }} tag added to latest commit on branch main"
-        git push origin main --tag
+    # - name: Tagging and pushing to GitHub Repo
+    #   run: |
+    #     git clean -f -x
+    #     git tag -a $NEW_TAG -m "New ${{ env.NEW_TAG }} tag added to latest commit on branch main"
+    #     git push origin main --tag
 
     - name: Env file deletion
       run: |
