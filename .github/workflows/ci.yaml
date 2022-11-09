@@ -54,8 +54,6 @@ jobs:
 
         echo "NEW_TAG=${{ env.NEW_MAJOR }}.${{ env.NEW_MINOR }}.${{ env.NEW_PATCH }}" >> $GITHUB_ENV
         echo "APP_VERSION=$NEW_TAG" >> $GITHUB_ENV
-        echo "The new tag for release on main branch is ${{ env.NEW_TAG}}"
-        echo "The tag used for pipeline operations will be ${{ env.NEW_VERSION}}"
 
     - name: Env file creation
       run: |
@@ -124,7 +122,7 @@ jobs:
     - name: Tagging and pushing to GitHub Repo
       run: |
         git clean -f -x
-        git tag -a $NEW_TAG -m "New $NEW_TAG tag added to latest commit on branch main"
+        git tag -a $NEW_TAG -m "New ${{ env.NEW_TAG }} tag added to latest commit on branch main"
         git push origin main --tag
 
     - name: Env file deletion
