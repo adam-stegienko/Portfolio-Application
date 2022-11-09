@@ -30,32 +30,37 @@ jobs:
     - name: Semantic versioning (x.y.z)
       run: |
         LATEST_TAG="$(git tag | sort -V | tail -1 || true)"
+        echo "LATEST_TAG=$(git tag | sort -V | tail -1 || true)" >> $GITHUB_ENV
+        echo "$LATEST_TAG"
 
-        UPDATE_CHECKER="$(git log --format="medium" -1)"
-        MAJOR_UPDATE="$(echo $UPDATE_CHECKER | grep '#major' || true)"
-        MINOR_UPDATE="$(echo $UPDATE_CHECKER | grep '#minor' || true)"
+        echo "UPDATE_CHECKER=$(git log --format="medium" -1)" >> $GITHUB_ENV
+        echo "MAJOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#major' || true)" >> $GITHUB_ENV
+        echo "MINOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#minor' || true)" >> $GITHUB_ENV
         
-        NEW_MAJOR=$(echo "${LATEST_TAG}" | cut -d "." -f 1)
-        NEW_MINOR=$(echo "${LATEST_TAG}" | cut -d "." -f 2)
-        NEW_PATCH=$(echo "${LATEST_TAG}" | cut -d "." -f 3)
+        echo "NEW_MAJOR=$(echo "${LATEST_TAG}" | cut -d "." -f 1)" >> $GITHUB_ENV
+        echo "NEW_MINOR=$(echo "${LATEST_TAG}" | cut -d "." -f 2)" >> $GITHUB_ENV
+        echo "NEW_PATCH=$(echo "${LATEST_TAG}" | cut -d "." -f 3)" >> $GITHUB_ENV
+        echo $NEW_MAJOR
+        echo $NEW_MINOR
+        echo $NEW_PATCH
 
         if [[ $MAJOR_UPDATE ]]; then
-          NEW_MAJOR=$(expr $NEW_MAJOR + 1)
+          echo "NEW_MAJOR=$(expr $NEW_MAJOR + 1)" >> $GITHUB_ENV
         elif [[ $MINOR_UPDATE ]]; then
-          NEW_MINOR=$(expr $NEW_MINOR + 1)
+          echo "NEW_MINOR=$(expr $NEW_MINOR + 1)" >> $GITHUB_ENV
         else
-          NEW_PATCH=$(expr $NEW_PATCH + 1)
+          echo "NEW_PATCH=$(expr $NEW_PATCH + 1)" >> $GITHUB_ENV
         fi
 
-        NEW_TAG="${NEW_MAJOR}.{NEW_MINOR}.{NEW_PATCH}"
-        APP_VERSION=$NEW_TAG
-        echo "The new tag for release on main branch is '$NEW_TAG'"
-        echo "The tag used for pipeline operations will be '$APP_VERSION'"
+        echo "NEW_TAG=${{ env.NEW_MAJOR }}.${{ env.NEW_MINOR }}.${{ env.NEW_PATCH }}" >> $GITHUB_ENV
+        echo "APP_VERSION=$NEW_TAG" >> $GITHUB_ENV
+        echo "The new tag for release on main branch is $NEW_TAG"
+        echo "The tag used for pipeline operations will be $APP_VERSION"
 
     - name: Env file creation
       run: |
         cat << EOF > .env
-        APP_VERSION: ${APP_VERSION}
+        APP_VERSION: ${{ env.APP_VERSION }}
         DB_VERSION: 2022-latest
         DB_PORT_IN: 1433
         DB_PORT_OUT: 1433
@@ -90,7 +95,7 @@ jobs:
       run: |
         # Build the image
         echo -e "\n---------------------------------------- BUILDING APP IMAGE --------------------------------------\n"
-        docker build -t digital_planner:latest .
+        docker build -t digital_planner:${{ env.APP_VERSION }} .
 
     - name: Set-up recreation
       run: |
@@ -119,7 +124,7 @@ jobs:
     - name: Tagging and pushing to GitHub Repo
       run: |
         git clean -f -x
-        git tag -a $NEW_TAG -m "New ${NEW_TAG} tag added to latest commit on branch main"
+        git tag -a $NEW_TAG -m "New $NEW_TAG tag added to latest commit on branch main"
         git push origin main --tag
 
     - name: Env file deletion
@@ -128,4 +133,4 @@ jobs:
 
     - name: Ready for publish
       run: |
-        echo "The image version ${APP_VERSION} is ready for publishing now."
+        echo "The image version ${{ env.APP_VERSION }} is ready for publishing now."
