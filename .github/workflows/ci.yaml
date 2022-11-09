@@ -47,13 +47,13 @@ jobs:
     - name: Checking what to update
       run: |
         if [[ $MAJOR_UPDATE ]]; then
-          echo "NEW_MAJOR=$(expr $MAJOR + 1)" >> $GITHUB_ENV
-          echo "NEW_PATCH=$(expr $MINOR - $MINOR)" >> GITHUB_ENV
-          echo "NEW_PATCH=$(expr $PATCH - $PATCH)" >> GITHUB_ENV
+          echo "NEW_MAJOR=$(expr $(echo $LATEST_TAG | cut -d "." -f 1) + 1)" >> $GITHUB_ENV
+          echo "NEW_MINOR=$(expr 0 * 1)" >> GITHUB_ENV
+          echo "NEW_PATCH=$(expr 0 * 1)" >> GITHUB_ENV
         elif [[ $MINOR_UPDATE ]]; then
           echo "NEW_MAJOR=$MAJOR" >> GITHUB_ENV
           echo "NEW_MINOR=$(expr $MINOR + 1)" >> $GITHUB_ENV
-          echo "NEW_PATCH=$(expr $PATCH - $PATCH)" >> GITHUB_ENV
+          echo "NEW_PATCH=$(expr 0 * 1)" >> GITHUB_ENV
         else
           echo "NEW_MAJOR=$MAJOR" >> GITHUB_ENV
           echo "NEW_MINOR=$MINOR" >> GITHUB_ENV
