@@ -36,7 +36,7 @@ jobs:
         echo "MAJOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#major' || true)" >> $GITHUB_ENV
         echo "MINOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#minor' || true)" >> $GITHUB_ENV
         
-        echo "NEW_MAJOR=$(echo $LATEST_TAG | cut -d "." -f 1)" >> $GITHUB_ENV
+        echo "NEW_MAJOR=$(echo ${LATEST_TAG} | cut -d "." -f 1)" >> $GITHUB_ENV
         echo "NEW_MINOR=$(echo $LATEST_TAG | cut -d "." -f 2)" >> $GITHUB_ENV
         echo "NEW_PATCH=$(echo $LATEST_TAG | cut -d "." -f 3)" >> $GITHUB_ENV
 
