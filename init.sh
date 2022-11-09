@@ -8,7 +8,7 @@ echo "\n${bold}--------------------------------------- IMPORTING ENV FILE ------
  if [ -f .env ]
      then
          export $(grep -v '^#' .env | xargs)
-         echo "Values from .env file sourced successfully."
+         echo "Values from .env file sourced successfully. Start."
      else
          echo "No .env file provided."
          exit 1
