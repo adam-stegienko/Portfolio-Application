@@ -20,19 +20,17 @@ jobs:
     - name: Latest app version
       run: APP_VERSION="latest"
 
-    # - name: Fetch tags
-    #   run: |
-    #     git checkout main
-    #     git remote set-url origin git@github.com:adam-stegienko/Develeap-Portfolio.git
-    #     git pull --rebase
-    #     git fetch --tags
+    - name: Fetch tags
+      run: |
+        git pull --rebase
+        git fetch --tags
 
     - name: Semantic versioning (x.y.z)
       run: |
         #!/bin/bash
         set -xe
 
-        echo "LATEST_TAG=$(git tag | sort -V | tail -1 || true)" >> $GITHUB_ENV
+        echo "LATEST_TAG=$(git tag | sort -V | tail -1)" >> $GITHUB_ENV
 
         echo "UPDATE_CHECKER=$(git log --format="short" -1 | tail -2 | tr -d "\n" | tr -d " " | tr -d "\r")" >> $GITHUB_ENV
         echo "MAJOR_UPDATE=$(echo ${{ env.UPDATE_CHECKER }} | grep '#major' || true)" >> $GITHUB_ENV
@@ -50,7 +48,7 @@ jobs:
           echo "NEW_PATCH=$(expr ${{ env.NEW_PATCH }} + 1)" >> $GITHUB_ENV
         fi
 
-        echo "NEW_TAG=${{ env.NEW_MAJOR }}.${{ env.NEW_MINOR }}.${{ env.NEW_PATCH }}" >> $GITHUB_ENV
+        echo "NEW_TAG=$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" >> $GITHUB_ENV
         echo "APP_VERSION=${{ env.NEW_TAG }}" >> $GITHUB_ENV
 
     - name: Env file creation
