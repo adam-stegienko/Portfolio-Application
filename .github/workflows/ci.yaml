@@ -32,19 +32,19 @@ jobs:
         echo "LATEST_TAG=$(git tag | sort -V | tail -1 || true)" >> $GITHUB_ENV
 
         echo "UPDATE_CHECKER="$(git log --format="short" -1 | tail -2 | tr -d "\n" | tr -d " " | tr -d "\r")" >> $GITHUB_ENV
-        echo "MAJOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#major' || true)" >> $GITHUB_ENV
-        echo "MINOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#minor' || true)" >> $GITHUB_ENV
+        echo "MAJOR_UPDATE=$(echo ${{ env.UPDATE_CHECKER }} | grep '#major' || true)" >> $GITHUB_ENV
+        echo "MINOR_UPDATE=$(echo ${{ env.UPDATE_CHECKER }} | grep '#minor' || true)" >> $GITHUB_ENV
         
         echo "NEW_MAJOR=$(echo "${{ env.LATEST_TAG }}" | cut -d "." -f 1)" >> $GITHUB_ENV
         echo "NEW_MINOR=$(echo "${{ env.LATEST_TAG }}" | cut -d "." -f 2)" >> $GITHUB_ENV
         echo "NEW_PATCH=$(echo "${{ env.LATEST_TAG }}" | cut -d "." -f 3)" >> $GITHUB_ENV
 
         if [[ $MAJOR_UPDATE ]]; then
-          echo "NEW_MAJOR=$(expr ${{ $NEW_MAJOR }} + 1)" >> $GITHUB_ENV
+          echo "NEW_MAJOR=$(expr ${{ env.NEW_MAJOR }} + 1)" >> $GITHUB_ENV
         elif [[ $MINOR_UPDATE ]]; then
-          echo "NEW_MINOR=$(expr ${{ $NEW_MINOR }} + 1)" >> $GITHUB_ENV
+          echo "NEW_MINOR=$(expr ${{ env.NEW_MINOR }} + 1)" >> $GITHUB_ENV
         else
-          echo "NEW_PATCH=$(expr ${{ env.$NEW_PATCH }} + 1)" >> $GITHUB_ENV
+          echo "NEW_PATCH=$(expr ${{ env.NEW_PATCH }} + 1)" >> $GITHUB_ENV
         fi
 
         echo "NEW_TAG=${{ env.NEW_MAJOR }}.${{ env.NEW_MINOR }}.${{ env.NEW_PATCH }}" >> $GITHUB_ENV
