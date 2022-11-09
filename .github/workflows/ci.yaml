@@ -29,11 +29,10 @@ jobs:
 
     - name: Semantic versioning (x.y.z)
       run: |
-        LATEST_TAG="$(git tag | sort -V | tail -1 || true)"
         echo "LATEST_TAG=$(git tag | sort -V | tail -1 || true)" >> $GITHUB_ENV
         echo $LATEST_TAG
 
-        echo "UPDATE_CHECKER=$(git log --format="medium" -1)" >> $GITHUB_ENV
+        echo "UPDATE_CHECKER=$(git log --format="medium" -1 | tail -2)" >> $GITHUB_ENV
         echo "MAJOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#major' || true)" >> $GITHUB_ENV
         echo "MINOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#minor' || true)" >> $GITHUB_ENV
         
