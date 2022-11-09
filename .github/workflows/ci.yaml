@@ -120,10 +120,6 @@ jobs:
         git tag -a $NEW_TAG -m "New ${{ env.NEW_TAG }} tag added to latest commit on branch main"
         git push origin main --tag
 
-    - name: Env file deletion
-      run: |
-        rm .env
-
     - name: Ready for publish
       run: |
         echo "The image version ${{ env.APP_VERSION }} is ready for publishing now."
