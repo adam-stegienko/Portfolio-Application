@@ -131,3 +131,33 @@ jobs:
     - name: Ready for publish
       run: |
         echo "The image version ${{ env.APP_VERSION }} is ready for publishing now."
+
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 'Push image'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - run: |
+          docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
+          docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
+
+      - name: 'Deploy to Azure Container Instances'
+        uses: 'azure/aci-deploy@v1'
+        with:
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
+          dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
+          image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
+          registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+          name: digital_planner
+          location: 'west europe'
+
