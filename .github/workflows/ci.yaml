@@ -26,10 +26,10 @@ jobs:
         git fetch --tags
 
     - name: Latest app version
-      run: echo 'APP_VERSION="latest"' >> $GITHUB_ENV
+      run: echo "APP_VERSION=latest" >> $GITHUB_ENV
 
     - name: Latest tag
-      run: echo 'LATEST_TAG="$(git tag | sort -V | tail -1)"' >> $GITHUB_ENV
+      run: echo "LATEST_TAG=$(git tag | sort -V | tail -1)" >> $GITHUB_ENV
 
     - name: Tag update checker
       run: echo "UPDATE_CHECKER=$(git log --format="short" -1 | tail -2 | tr -d "\n" | tr -d " " | tr -d "\r")" >> $GITHUB_ENV
