@@ -1,0 +1,133 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+    - main
+
+concurrency: production
+jobs:
+
+  build-and-publish:
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/main'
+    steps:  
+    - uses: actions/checkout@v3
+    - name: Checkout
+      run: echo "Repository checked out."
+
+    - name: Latest app version
+      run: echo 'APP_VERSION="latest"' >> $GITHUB_ENV
+
+    - name: Fetch tags
+      run: |
+        git pull --rebase
+        git fetch --tags
+
+    - name: Latest app version
+      run: echo "APP_VERSION=latest" >> $GITHUB_ENV
+
+    - name: Latest tag
+      run: echo "LATEST_TAG=$(git tag | sort -V | tail -1)" >> $GITHUB_ENV
+
+    - name: Tag update checker
+      run: echo "UPDATE_CHECKER=$(git log --format="short" -1 | tail -2 | tr -d "\n" | tr -d " " | tr -d "\r")" >> $GITHUB_ENV
+
+    - name: Major Minor
+      run: |
+        echo "MAJOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#major' || true)" >> $GITHUB_ENV
+        echo "MINOR_UPDATE=$(echo $UPDATE_CHECKER | grep '#minor' || true)" >> $GITHUB_ENV
+
+    - name: New Major Minor
+      run: |
+        echo "MAJOR=$(echo $LATEST_TAG | cut -d "." -f 1)" >> $GITHUB_ENV
+        echo "MINOR=$(echo $LATEST_TAG | cut -d "." -f 2)" >> $GITHUB_ENV
+        echo "PATCH=$(echo $LATEST_TAG | cut -d "." -f 3)" >> $GITHUB_ENV
+
+    - name: Checking what to update
+      run: |
+        if [[ $MAJOR_UPDATE ]]; then
+          echo "NEW_MAJOR=$(expr $MAJOR + 1)" >> $GITHUB_ENV
+        elif [[ $MINOR_UPDATE ]]; then
+          echo "NEW_MINOR=$(expr $MINOR + 1)" >> $GITHUB_ENV
+        else
+          echo "NEW_PATCH=$(expr $PATCH + 1)" >> $GITHUB_ENV
+        fi
+
+    - name: New Tag
+      run: |
+        echo "NEW_TAG=$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" >> $GITHUB_ENV
+
+        if [[ $MAJOR_UPDATE ]]; then
+          echo "NEW_TAG=$NEW_MAJOR.0.0" >> $GITHUB_ENV
+        elif [[ $MINOR_UPDATE ]]; then
+          echo "NEW_TAG=$MAJOR.$NEW_MINOR.0" >> $GITHUB_ENV
+        else
+          echo "NEW_TAG=$MAJOR.$MINOR.$NEW_PATCH" >> $GITHUB_ENV
+        fi
+
+    - name: Semantic versioning (x.y.z)
+      run: echo "APP_VERSION=$NEW_TAG" >> $GITHUB_ENV
+
+    - name: Env file creation
+      run: |
+        cat << EOF > .env
+        APP_VERSION: $APP_VERSION
+        DB_VERSION: 2022-latest
+        DB_PORT_IN: 1433
+        DB_PORT_OUT: 1433
+        ACCEPT_EULA: Y
+        MSSQL_SA_USER: ${{ secrets.MSSQL_SA_USER }}
+        MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
+        MSSQL_PID: Developer
+        DATA_VOLUME: /var/opt/mssql
+        MSSQL_DB: ${{ secrets.MSSQL_DB }}
+        MSSQL_USER: ${{ secrets.MSSQL_USER }}
+        MSSQL_PASSWORD: ${{ secrets.MSSQL_PASSWORD }}
+        MSSQL_SERVER: mssql_server
+        DRIVER: FreeTDS
+        PROTOCOL: mssql+pyodbc
+        OPTIONS: 'TDS_Version=8.0'  
+        EOF
+
+    # - name: Docker image build
+    #   run: |
+    #     # Build the image
+    #     echo -e "\n---------------------------------------- BUILDING APP IMAGE --------------------------------------\n"
+    #     docker build -t digital_planner:${{ env.APP_VERSION }} .
+
+    # - name: Set-up recreation
+    #   run: |
+    #     docker compose up --detach
+    #     sleep 2
+        
+    # - name: Logs
+    #   run: |
+    #     # Check start-up logs
+    #     echo -e "\n----------------------------------------- DATABASE LOGS ------------------------------------------\n"
+    #     docker logs mssql_server
+    #     sleep 2
+    #     echo -e "\n---------------------------------------- APPLICATION LOGS ----------------------------------------\n"
+    #     docker logs digital_planner
+    #     sleep 2
+    #     echo -e "\n--------------------------------------- REVERSE PROXY LOGS ---------------------------------------\n"
+    #     docker logs reverse_nginx
+    #     sleep 2
+
+    # - name: Unit testing
+    #   run: |
+    #     # Perform unit tests
+    #     echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
+    #     command ./unit_tests.sh
+        
+    - name: Tagging and pushing to GitHub Repo
+      run: |
+        git config --global user.email "adam.stegienko1@gmail.com"
+        git config --global user.name "Adam Stegienko"
+        git clean -f -x
+        git tag -a $NEW_TAG -m "New ${{ env.NEW_TAG }} tag added to latest commit on branch main"
+        git push origin main --tag
+
+    - name: Ready for publish
+      run: |
+        echo "The image version ${{ env.APP_VERSION }} is ready for publishing now."
