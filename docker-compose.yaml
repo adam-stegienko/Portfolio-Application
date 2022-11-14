@@ -11,6 +11,7 @@ services:
       - "80:80"
     volumes:
       - ./reverse_proxy/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./reverse_proxy/templates/:/usr/share/nginx/html/
     restart: always
 
   digital_planner:

@@ -1,0 +1,38 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h1>{% block title %} {{ title }} {% endblock %}</h1>
+    <br>
+    <section class="container">
+      <div class="row">
+         <div class="col">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="flash">
+               {% for message in messages %}
+               <h3>{{ message }}</h3>
+               {% endfor %}
+            </div>
+            {%else%}
+            <form action="" method="post">
+                  {{ form.username.label }}<br>
+                  {{ form.username(size=32) }}
+               </p>
+               <p>
+                  {{ form.email.label }}<br>
+                  {{ form.email(size=32) }}
+               </p>
+               <p>
+                  {{ form.password.label }}<br>
+                  {{ form.password(size=32) }}
+               </p>
+               <p>{{ form.submit(class_='btn btn-secondary') }}</p>
+            </form>
+         </div>
+            {% endif %}
+         {% endwith %}
+      </div>
+   </section>
+    
+   
+{% endblock %}
