@@ -87,38 +87,39 @@ jobs:
         MSSQL_SERVER: mssql_server
         DRIVER: FreeTDS
         PROTOCOL: mssql+pyodbc
-        OPTIONS: 'TDS_Version=8.0'  
+        OPTIONS: 'TDS_Version=8.0'
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         EOF
 
-    - name: Docker image build
-      run: |
-        # Build the image
-        echo -e "\n---------------------------------------- BUILDING APP IMAGE --------------------------------------\n"
-        docker build -t digital_planner:${{ env.APP_VERSION }} .
+    # - name: Docker image build
+    #   run: |
+    #     # Build the image
+    #     echo -e "\n---------------------------------------- BUILDING APP IMAGE --------------------------------------\n"
+    #     docker build -t digital_planner:${{ env.APP_VERSION }} .
 
-    - name: Set-up recreation
-      run: |
-        docker compose up --detach
-        sleep 2
+    # - name: Set-up recreation
+    #   run: |
+    #     docker compose up --detach
+    #     sleep 2
         
-    - name: Logs
-      run: |
-        # Check start-up logs
-        echo -e "\n----------------------------------------- DATABASE LOGS ------------------------------------------\n"
-        docker logs mssql_server
-        sleep 2
-        echo -e "\n---------------------------------------- APPLICATION LOGS ----------------------------------------\n"
-        docker logs digital_planner
-        sleep 2
-        echo -e "\n--------------------------------------- REVERSE PROXY LOGS ---------------------------------------\n"
-        docker logs reverse_nginx
-        sleep 2
+    # - name: Logs
+    #   run: |
+    #     # Check start-up logs
+    #     echo -e "\n----------------------------------------- DATABASE LOGS ------------------------------------------\n"
+    #     docker logs mssql_server
+    #     sleep 2
+    #     echo -e "\n---------------------------------------- APPLICATION LOGS ----------------------------------------\n"
+    #     docker logs digital_planner
+    #     sleep 2
+    #     echo -e "\n--------------------------------------- REVERSE PROXY LOGS ---------------------------------------\n"
+    #     docker logs reverse_nginx
+    #     sleep 2
 
-    - name: Unit testing
-      run: |
-        # Perform unit tests
-        echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
-        command ./unit_tests.sh
+    # - name: Unit testing
+    #   run: |
+    #     # Perform unit tests
+    #     echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
+    #     command ./unit_tests.sh
         
     - name: Tagging and pushing to GitHub Repo
       run: |
@@ -132,34 +133,71 @@ jobs:
       run: |
         echo "The image version ${{ env.APP_VERSION }} is ready for publishing now."
 
-    - name: 'Login via Azure CLI'
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    - name: Push image
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-      
-    - name: Tag and push
-      run: |
-        docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
-        docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
-
-    # - name: 'Deploy to Azure Container Instances'
-    #   uses: 'azure/aci-deploy@v1'
+    # - name: 'Login via Azure CLI'
+    #   uses: azure/login@v1
     #   with:
-    #     resource-group: ${{ secrets.RESOURCE_GROUP }}
-    #     dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
-    #     image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
-    #     registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-    #     registry-username: ${{ secrets.REGISTRY_USERNAME }}
-    #     registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-    #     name: digital_planner
-    #     location: 'west europe'
+    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    # - name: Push image
+    #   uses: azure/docker-login@v1
+    #   with:
+    #     login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+    #     username: ${{ secrets.REGISTRY_USERNAME }}
+    #     password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+    # - name: Tag and push
+    #   run: |
+    #     docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
+    #     docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
+    #     docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
+    #     docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
+
+    - name: Checkout Confiuration Repo
+      uses: actions/checkout@v3
+      with:
+        repository: git@github.com:adam-stegienko/Portfolio-Configuration.git
+        ref: 'main'
+        token:  ${{ env.ACCESS_TOKEN }}
+
+    - name: Change app version of helm chart
+      run: |
+        cat << EOF > charts/digital-planner/templates/digital-planner-deployment.yaml
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: digital-planner-deployment
+          labels:
+            app: digital-planner
+        spec:
+          replicas: 3
+          selector:
+            matchLabels:
+              app: digital-planner
+          template:
+            metadata:
+              labels:
+                app: digital-planner
+            spec:
+              containers:
+              - name: digital-planner
+                image: digitalplanner.azurecr.io/digital_planner:${{ env.APP_VERSION }}
+                ports:
+                - containerPort: 5000
+                envFrom:
+                - configMapRef:
+                    name: config-map
+                resources:
+                  requests:
+                    memory: "64Mi"
+                    cpu: "250m"
+                  limits:
+                    memory: "128Mi"
+                    cpu: "500m"
+        EOF
+
+    - name: Commit and push changes
+    - run: |
+        git add .
+        git commit -m "Digital Planner's version has been upgraded to ${{ env.APP_VERSION }}"
+        git push -u origin main
 
