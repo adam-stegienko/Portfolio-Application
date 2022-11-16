@@ -88,7 +88,6 @@ jobs:
         DRIVER: FreeTDS
         PROTOCOL: mssql+pyodbc
         OPTIONS: 'TDS_Version=8.0'
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         EOF
 
     # - name: Docker image build
@@ -152,12 +151,12 @@ jobs:
     #     docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
     #     docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
 
-    - name: Checkout Confiuration Repo
+    - name: Checkout Configuration Repo
       uses: actions/checkout@v3
       with:
         repository: git@github.com:adam-stegienko/Portfolio-Configuration.git
         ref: 'main'
-        token:  ${{ env.ACCESS_TOKEN }}
+        token:  ${{ secrets.ACCESS_TOKEN }}
 
     - name: Change app version of helm chart
       run: |
