@@ -154,8 +154,8 @@ jobs:
     - name: Checkout Configuration Repo
       uses: actions/checkout@v3
       with:
-        repository: git@github.com:adam-stegienko/Portfolio-Configuration.git
-        ref: 'main'
+        repository: adam-stegienko/Portfolio-Configuration.git
+        ref: 'master'
         token:  ${{ secrets.ACCESS_TOKEN }}
 
     - name: Change app version of helm chart
@@ -198,5 +198,5 @@ jobs:
       run: |
         git add .
         git commit -m "Digital Planner's version has been upgraded to ${{ env.APP_VERSION }}"
-        git push -u origin main
+        git push -u origin master
 
