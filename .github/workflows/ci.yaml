@@ -90,35 +90,35 @@ jobs:
         OPTIONS: 'TDS_Version=8.0'
         EOF
 
-    # - name: Docker image build
-    #   run: |
-    #     # Build the image
-    #     echo -e "\n---------------------------------------- BUILDING APP IMAGE --------------------------------------\n"
-    #     docker build -t digital_planner:${{ env.APP_VERSION }} .
+    - name: Docker image build
+      run: |
+        # Build the image
+        echo -e "\n---------------------------------------- BUILDING APP IMAGE --------------------------------------\n"
+        docker build -t digital_planner:${{ env.APP_VERSION }} .
 
-    # - name: Set-up recreation
-    #   run: |
-    #     docker compose up --detach
-    #     sleep 2
+    - name: Set-up recreation
+      run: |
+        docker compose up --detach
+        sleep 2
         
-    # - name: Logs
-    #   run: |
-    #     # Check start-up logs
-    #     echo -e "\n----------------------------------------- DATABASE LOGS ------------------------------------------\n"
-    #     docker logs mssql_server
-    #     sleep 2
-    #     echo -e "\n---------------------------------------- APPLICATION LOGS ----------------------------------------\n"
-    #     docker logs digital_planner
-    #     sleep 2
-    #     echo -e "\n--------------------------------------- REVERSE PROXY LOGS ---------------------------------------\n"
-    #     docker logs reverse_nginx
-    #     sleep 2
+    - name: Logs
+      run: |
+        # Check start-up logs
+        echo -e "\n----------------------------------------- DATABASE LOGS ------------------------------------------\n"
+        docker logs mssql_server
+        sleep 2
+        echo -e "\n---------------------------------------- APPLICATION LOGS ----------------------------------------\n"
+        docker logs digital_planner
+        sleep 2
+        echo -e "\n--------------------------------------- REVERSE PROXY LOGS ---------------------------------------\n"
+        docker logs reverse_nginx
+        sleep 2
 
-    # - name: Unit testing
-    #   run: |
-    #     # Perform unit tests
-    #     echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
-    #     command ./unit_tests.sh
+    - name: Unit testing
+      run: |
+        # Perform unit tests
+        echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
+        command ./unit_tests.sh
         
     - name: Tagging and pushing to GitHub Repo
       run: |
@@ -132,24 +132,24 @@ jobs:
       run: |
         echo "The image version ${{ env.APP_VERSION }} is ready for publishing now."
 
-    # - name: 'Login via Azure CLI'
-    #   uses: azure/login@v1
-    #   with:
-    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
     
-    # - name: Push image
-    #   uses: azure/docker-login@v1
-    #   with:
-    #     login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-    #     username: ${{ secrets.REGISTRY_USERNAME }}
-    #     password: ${{ secrets.REGISTRY_PASSWORD }}
+    - name: Push image
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
       
-    # - name: Tag and push
-    #   run: |
-    #     docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
-    #     docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
-    #     docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
-    #     docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
+    - name: Tag and push
+      run: |
+        docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:${{ env.APP_VERSION }}
+        docker tag digital_planner:${{ env.APP_VERSION }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/digital_planner:latest
 
     - name: Checkout Configuration Repo
       uses: actions/checkout@v3
@@ -198,5 +198,5 @@ jobs:
       run: |
         git add .
         git commit -m "Digital Planner's version has been upgraded to ${{ env.APP_VERSION }}"
-        git push -u origin master
+        git push -u origin main
 
