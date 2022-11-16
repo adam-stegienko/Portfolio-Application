@@ -196,7 +196,7 @@ jobs:
         EOF
 
     - name: Commit and push changes
-    - run: |
+      run: |
         git add .
         git commit -m "Digital Planner's version has been upgraded to ${{ env.APP_VERSION }}"
         git push -u origin main
