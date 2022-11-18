@@ -37,4 +37,4 @@ echo "\n${bold}--------------------------------------- REVERSE PROXY LOGS ------
 
  # Perform unit tests
 echo "\n${bold}--------------------------------------- RUNNING UNIT TESTS ---------------------------------------${normal}\n"
- command ./unit_tests.sh
+ command ./e2e_tests.sh
