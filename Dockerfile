@@ -2,8 +2,8 @@ FROM ubuntu:22.04
 
 WORKDIR /src/app/
 
-# RUN apk add curl
-RUN apt install python3
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt install python3.10
 RUN curl https://bootstrap.pypa.io/pip/3.6/get-pip.py --output get-pip.py
 RUN python3 get-pip.py
 
