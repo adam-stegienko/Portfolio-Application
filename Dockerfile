@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 WORKDIR /src/app/
 
 # RUN apk add curl
-RUN apk add --no-cache python3
+RUN apt-get python3
 RUN curl https://bootstrap.pypa.io/pip/3.6/get-pip.py --output get-pip.py
 RUN python3 get-pip.py
 
