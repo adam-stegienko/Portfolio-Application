@@ -114,11 +114,11 @@ jobs:
         docker logs reverse_nginx
         sleep 2
 
-    - name: Unit testing
+    - name: E2E testing
       run: |
-        # Perform unit tests
-        echo -e "\n--------------------------------------- RUNNING UNIT TESTS ----------------------------------------n"
-        command ./unit_tests.sh
+        # Perform e2e tests
+        echo -e "\n--------------------------------------- RUNNING E2E TESTS ----------------------------------------n"
+        command ./e2e_tests.sh
         
     - name: Tagging and pushing to GitHub Repo
       run: |
