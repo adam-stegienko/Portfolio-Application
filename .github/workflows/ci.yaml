@@ -179,7 +179,7 @@ jobs:
             spec:
               containers:
               - name: digital-planner
-                image: digitalplanner.azurecr.io/digital_planner:2.0.0
+                image: digitalplanner.azurecr.io/digital_planner:${{ env.APP_VERSION }}
                 ports:
                 - containerPort: 5000
                 envFrom:
