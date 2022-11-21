@@ -168,7 +168,7 @@ jobs:
           labels:
             app: digital-planner
         spec:
-          replicas: 3
+          replicas: 7
           selector:
             matchLabels:
               app: digital-planner
@@ -179,12 +179,33 @@ jobs:
             spec:
               containers:
               - name: digital-planner
-                image: digitalplanner.azurecr.io/digital_planner:${{ env.APP_VERSION }}
+                image: digitalplanner.azurecr.io/digital_planner:2.0.0
                 ports:
                 - containerPort: 5000
                 envFrom:
-                - configMapRef:
-                    name: config-map
+                - secretRef:
+                    name: digital-planner-secret
+                env:
+                - name: MSSQL_SA_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: digital-planner-external-secret
+                      key: MSSQL_SA_PASSWORD
+                - name: MSSQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: digital-planner-external-secret
+                      key: MSSQL_USER
+                - name: MSSQL_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: digital-planner-external-secret
+                      key: MSSQL_DB
+                - name: MSSQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: digital-planner-external-secret
+                      key: MSSQL_PASSWORD
                 resources:
                   requests:
                     memory: "64Mi"
@@ -192,6 +213,18 @@ jobs:
                   limits:
                     memory: "128Mi"
                     cpu: "500m"
+              affinity:
+                podAntiAffinity:
+                  preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 100
+                    podAffinityTerm:
+                      labelSelector:
+                        matchExpressions:
+                        - key: app
+                          operator: In
+                          values:
+                          - digital-planner
+                      topologyKey: kubernetes.azure.com/agentpool
         EOF
 
     - name: Commit and push changes
